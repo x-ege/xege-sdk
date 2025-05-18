@@ -72,6 +72,7 @@
 #endif
 #endif
 
+#include "ege/stdint.h"
 
 #if defined(EGE_FOR_AUTO_CODE_COMPLETETION_ONLY)
 #include <windef.h>
@@ -125,12 +126,12 @@
 #ifndef EGE_DEPRECATE
 #   ifdef _MSC_VER
 #       ifdef _CRT_DEPRECATE_TEXT
-#           define EGE_DEPRECATE(function, msg) _CRT_DEPRECATE_TEXT("This function is deprecated. " msg " For more information, visit https://xege.org/.")
+#           define EGE_DEPRECATE(function, msg) _CRT_DEPRECATE_TEXT("This function is deprecated. " msg " For more information, visit https://xege.org .")
 #       else
 #           define EGE_DEPRECATE(function, msg)
 #       endif
 #   elif ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)))
-#       define EGE_DEPRECATE(function, msg) __attribute__((deprecated(msg " For more information, visit https://xege.org/.")))
+#       define EGE_DEPRECATE(function, msg) __attribute__((deprecated(msg " For more information, visit https://xege.org .")))
 #   else
 #       define EGE_DEPRECATE(function, msg) __attribute__((deprecated))
 #   endif
@@ -275,7 +276,7 @@ enum message_mouse
 
 #ifndef EGE_COLOR_T_TYPEDEF
 #define EGE_COLOR_T_TYPEDEF
-typedef unsigned int color_t;
+typedef uint32_t color_t;
 #endif
 
 enum alpha_type
@@ -567,6 +568,8 @@ enum key_code_e
     key_mouse_l         = 0x01,
     key_mouse_r         = 0x02,
     key_mouse_m         = 0x04,
+    key_mouse_x1        = 0x05,
+    key_mouse_x2        = 0x06,
     key_back            = 0x08,
     key_tab             = 0x09,
     key_enter           = 0x0d,
@@ -722,9 +725,11 @@ enum mouse_msg_e
 
 enum mouse_flag_e
 {
-    mouse_flag_left     = 1,
-    mouse_flag_right    = 2,
-    mouse_flag_mid      = 4,
+    mouse_flag_left     = 0x001,
+    mouse_flag_right    = 0x002,
+    mouse_flag_mid      = 0x004,
+    mouse_flag_x1       = 0x008,
+    mouse_flag_x2       = 0x010,
     mouse_flag_shift    = 0x100,
     mouse_flag_ctrl     = 0x200
 };
@@ -736,12 +741,16 @@ struct mouse_msg
     mouse_msg_e     msg;
     unsigned int    flags;
     int             wheel;
+
     bool is_left()  const {return (flags & mouse_flag_left)  != 0;}
     bool is_right() const {return (flags & mouse_flag_right) != 0;}
     bool is_mid()   const {return (flags & mouse_flag_mid)   != 0;}
-    bool is_down()  const {return msg == mouse_msg_down;}
-    bool is_up()    const {return msg == mouse_msg_up;}
-    bool is_move()  const {return msg == mouse_msg_move;}
+    bool is_x1()    const {return (flags & mouse_flag_x1)    != 0;}
+    bool is_x2()    const {return (flags & mouse_flag_x2)    != 0;}
+
+    bool is_down()  const {return msg == mouse_msg_down; }
+    bool is_up()    const {return msg == mouse_msg_up;   }
+    bool is_move()  const {return msg == mouse_msg_move; }
     bool is_wheel() const {return msg == mouse_msg_wheel;}
 };
 
@@ -753,6 +762,8 @@ struct MOUSEMSG
     bool  mkLButton;
     bool  mkMButton;
     bool  mkRButton;
+    bool  mkXButton1;
+    bool  mkXButton2;
     short x;
     short y;
     short wheel;
@@ -920,20 +931,20 @@ void EGEAPI window_getviewport(viewporttype * viewport);
 void EGEAPI window_getviewport(int* left, int* top, int* right, int* bottom);
 void EGEAPI window_setviewport(int  left, int  top, int  right, int  bottom);
 
-
-void EGEAPI getlinestyle(int* linestyle, unsigned short* pattern = NULL, int* thickness = NULL, PCIMAGE pimg = NULL);
-void EGEAPI setlinestyle(int  linestyle, unsigned short  pattern = 0,    int  thickness = 1,    PIMAGE pimg = NULL);
 void EGEAPI setlinewidth(float width, PIMAGE pimg = NULL);
 
+void EGEAPI getlinestyle(int* linestyle, unsigned short* pattern = NULL, int* thickness = NULL, PCIMAGE pimg = NULL);
+void EGEAPI setlinestyle(int  linestyle, unsigned short  pattern = 0,    int  thickness = 1,    PIMAGE  pimg = NULL);
+
 void EGEAPI setlinecap(line_cap_type linecap, PIMAGE pimg = NULL);
-void EGEAPI setlinecap(line_cap_type  startCap, line_cap_type  endCap, PIMAGE pimg = NULL);
-void EGEAPI getlinecap(line_cap_type* startCap, line_cap_type* endCap, PIMAGE pimg = NULL);
-line_cap_type EGEAPI getlinecap(PIMAGE pimg = NULL);
+void EGEAPI setlinecap(line_cap_type  startCap, line_cap_type  endCap, PIMAGE  pimg = NULL);
+void EGEAPI getlinecap(line_cap_type* startCap, line_cap_type* endCap, PCIMAGE pimg = NULL);
+line_cap_type EGEAPI getlinecap(PCIMAGE pimg = NULL);
 
 void EGEAPI setlinejoin(line_join_type  linejoin, PIMAGE pimg = NULL);
 void EGEAPI setlinejoin(line_join_type  linejoin, float  miterLimit, PIMAGE pimg = NULL);
-void EGEAPI getlinejoin(line_join_type* linejoin, float* miterLimit, PIMAGE pimg = NULL);
-line_join_type EGEAPI getlinejoin(PIMAGE pimg = NULL);
+void EGEAPI getlinejoin(line_join_type* linejoin, float* miterLimit, PCIMAGE pimg = NULL);
+line_join_type EGEAPI getlinejoin(PCIMAGE pimg = NULL);
 
 //void getfillstyle(color_t *pcolor, int *ppattern = NULL, PIMAGE pimg = NULL);           // ###
 void EGEAPI setfillstyle(int pattern, color_t color, PIMAGE pimg = NULL);
@@ -1197,14 +1208,15 @@ ege_point EGEAPI ege_transform_calc(float x, float y, PIMAGE pimg = NULL);  // C
 // It is not supported in VC 6.0.
 #ifndef EGE_COMPILERINFO_VC6
 // Console
-bool init_console();    // Initialize the console
-bool clear_console();   // Clear the console
-bool show_console();    // Show the Console
-bool hide_console();    // Hide the console
-bool close_console();   // Close the console and restore the old STD I/O
+bool EGEAPI init_console();    // Initialize the console
+bool EGEAPI clear_console();   // Clear the console
+bool EGEAPI show_console();    // Show the Console
+bool EGEAPI hide_console();    // Hide the console
+bool EGEAPI close_console();   // Close the console and restore the old STD I/O
 #endif
 
-int  getch_console();   // Used instead of the getch() function in <conio.h>
+int  EGEAPI getch_console();   // Replace the getch() function in <conio.h>
+int  EGEAPI kbhit_console();   // Replace the kbhit() function in <conio.h>
 
 void EGEAPI ege_sleep (long ms);
 void EGEAPI delay     (long ms);
@@ -1240,22 +1252,22 @@ void EGEAPI outtextrect(int x, int y, int w, int h, const wchar_t* text, PIMAGE 
 void EGEAPI rectprintf (int x, int y, int w, int h, const char*    format, ...);
 void EGEAPI rectprintf (int x, int y, int w, int h, const wchar_t* format, ...);
 
-int  EGEAPI textwidth(const char*    text, PIMAGE pimg = NULL);
-int  EGEAPI textwidth(const wchar_t* text, PIMAGE pimg = NULL);
-int  EGEAPI textwidth(char    c, PIMAGE pimg = NULL);
-int  EGEAPI textwidth(wchar_t c, PIMAGE pimg = NULL);
+int  EGEAPI textwidth(const char*    text, PCIMAGE pimg = NULL);
+int  EGEAPI textwidth(const wchar_t* text, PCIMAGE pimg = NULL);
+int  EGEAPI textwidth(char    c, PCIMAGE pimg = NULL);
+int  EGEAPI textwidth(wchar_t c, PCIMAGE pimg = NULL);
 
-int  EGEAPI textheight(const char*    text, PIMAGE pimg = NULL);
-int  EGEAPI textheight(const wchar_t* text, PIMAGE pimg = NULL);
-int  EGEAPI textheight(char    c, PIMAGE pimg = NULL);
-int  EGEAPI textheight(wchar_t c, PIMAGE pimg = NULL);
+int  EGEAPI textheight(const char*    text, PCIMAGE pimg = NULL);
+int  EGEAPI textheight(const wchar_t* text, PCIMAGE pimg = NULL);
+int  EGEAPI textheight(char    c, PCIMAGE pimg = NULL);
+int  EGEAPI textheight(wchar_t c, PCIMAGE pimg = NULL);
 
-void EGEAPI ege_outtextxy(int x, int y, const char*    text, PIMAGE pimg = NULL);
-void EGEAPI ege_outtextxy(int x, int y, const wchar_t* text, PIMAGE pimg = NULL);
-void EGEAPI ege_outtextxy(int x, int y, char    c, PIMAGE pimg = NULL);
-void EGEAPI ege_outtextxy(int x, int y, wchar_t c, PIMAGE pimg = NULL);
-void EGEAPI ege_xyprintf (int x, int y, const char*    format, ...);
-void EGEAPI ege_xyprintf (int x, int y, const wchar_t* format, ...);
+void EGEAPI ege_outtextxy(float x, float y, const char*    text, PIMAGE pimg = NULL);
+void EGEAPI ege_outtextxy(float x, float y, const wchar_t* text, PIMAGE pimg = NULL);
+void EGEAPI ege_outtextxy(float x, float y, char    c, PIMAGE pimg = NULL);
+void EGEAPI ege_outtextxy(float x, float y, wchar_t c, PIMAGE pimg = NULL);
+void EGEAPI ege_xyprintf (float x, float y, const char*    format, ...);
+void EGEAPI ege_xyprintf (float x, float y, const wchar_t* format, ...);
 
 void EGEAPI settextjustify(int horiz, int vert, PIMAGE pimg = NULL);
 
@@ -1519,14 +1531,17 @@ int     EGEAPI kbhitEx(int flag);
 int     EGEAPI keystate(int key);
 void    EGEAPI flushkey();
 
+int     EGEAPI ege_getch();
+int     EGEAPI ege_kbhit();
+
 #if !defined(_INC_CONIO) && !defined(_CONIO_H_)
 #define _INC_CONIO
 #define _CONIO_H_
-int EGEAPI getch();
-int EGEAPI kbhit();
+int EGEAPI getch();  // Same as ege_getch()
+int EGEAPI kbhit();  // Same as ege_kbhit()
 #else
-#define getch getchEx
-#define kbhit kbhitEx
+#define getch ege_getch
+#define kbhit ege_kbhit
 #endif
 
 int         EGEAPI mousemsg();
@@ -1596,7 +1611,7 @@ unsigned long EGEAPI ege_uncompress_size(const void *source, unsigned long sourc
 
 #ifndef EGE_GRAPH_LIB_BUILD
     #if defined(_MSC_VER) && (defined(HIDE_CONSOLE) || !defined(SHOW_CONSOLE))
-        #pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
+        // #pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
     #endif
 
     #define Sleep(ms) delay_ms(ms)

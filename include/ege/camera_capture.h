@@ -2,12 +2,6 @@
 #ifndef EGE_CAMERA_CAPTURE_H
 #define EGE_CAMERA_CAPTURE_H
 
-#if __cplusplus < 201103L
-// 判断一下是否支持 C++11, 不支持的话, 直接屏蔽此文件内容
-#pragma message("C++11 or higher is required.")
-#define EGE_CAMERA_CAPTURE_H
-#endif
-
 // 判断一下是否支持 C++17, 不支持的给一个警告
 
 #if !(defined(EGE_ENABLE_CAMERA_CAPTURE) && EGE_ENABLE_CAMERA_CAPTURE) && __cplusplus < 201703L
@@ -39,6 +33,11 @@ namespace ege
 {
 class CameraCapture;
 struct FrameContainer;
+
+/// @brief 检查是否启用了相机捕获模块. 这通常是编译时确定的。
+/// 目前支持的版本为: 1. MSVC2022+, 2. 支持 C++17 的 MinGW 等.
+/// @return 如果启用了相机捕获模块, 返回 true; 否则返回 false.
+bool hasCameraCaptureModule();
 
 /// 一个帧数据的容器, 做一些数据回收相关的工作, 防止反复分配内存.
 /// 为了契合 ege::IMAGE 的设计, 这里的像素格式永远是 BGRA.
@@ -112,12 +111,10 @@ public:
 
         DeviceList(const DeviceList&) = delete;
 
-        DeviceList(DeviceList&& d)
+        DeviceList(DeviceList&& d) : info(d.info), count(d.count)
         {
-            (DeviceInfo*&)(info) = (DeviceInfo*)d.info;
-            (int&)count          = (int)d.count;
-            (DeviceInfo*&)d.info = nullptr; // 避免析构时重复释放
-            (int&)d.count        = (int)0;
+            const_cast<DeviceInfo*&>(d.info) = nullptr; // 避免析构时重复释放
+            const_cast<int&>(d.count)        = 0;
         }
 
         DeviceList& operator=(const DeviceList&) = delete;

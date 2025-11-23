@@ -4,7 +4,7 @@
 
 - 安装教程 <https://xege.org/beginner-lesson-1.html>
 - IDE下载 <https://xege.org/install_and_config>
-- 源代码 <https://github.com/x-ege/xege> (由 <https://github.com/wysaid/xege> 代为维护)
+- 源代码 <https://github.com/x-ege/xege> (当前维护者: [wysaid](https://github.com/wysaid))
 
 ## 最新更新
 

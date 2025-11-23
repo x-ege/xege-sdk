@@ -1,8 +1,36 @@
 # EGE 24.04 安装包
 
+> **本仓库说明**：本仓库（xege.org）是 [xege 源代码仓库](https://github.com/x-ege/xege) 的产物存储项目，用于存放预编译的库文件、头文件和文档。如需查看源代码、贡献代码或报告问题，请访问源代码仓库。
+
 - 安装教程 <https://xege.org/beginner-lesson-1.html>
 - IDE下载 <https://xege.org/install_and_config>
-- 源代码 <https://github.com/wysaid/xege>
+- 源代码 <https://github.com/x-ege/xege> (由 <https://github.com/wysaid/xege> 代为维护)
+
+## 最新更新
+
+EGE 源代码仓库持续更新中，最新版本已支持：
+- **Visual Studio 2026** 
+- Visual Studio 2022
+- 小熊猫 C++（Dev-C++ 的现代版本）
+- CLion
+- 以及其他使用 MinGW 的 IDE
+
+详细的版本变更信息请参见 [CHANGELOG.md](CHANGELOG.md)。
+
+## 仓库内容
+
+本仓库包含：
+- `include/` - EGE 库的头文件
+- `lib/` - 预编译的静态库文件（支持多种编译器和平台）
+- `demo/` - 示例程序
+- `man/` - API 文档和使用手册
+
+## 编译说明
+
+如果你想从源代码编译 EGE，请参考：
+- 本仓库的 [BUILD.md](BUILD.md) - 快速编译说明
+- 源代码仓库的 [完整编译指南](https://github.com/x-ege/xege/blob/master/BUILD.md)
+
 
 # 版本更新说明
 
@@ -31,7 +59,7 @@
 - 新增 INIT_HIDE 初始化模式，使用窗口创建后不可见(调用 showwindow() 显示窗口)
 - 支持在 EGE 中使用 UTF-8 字符串
 - 新增用于刷新窗口的 flushwindow() 函数，确保显示绘图内容
-- 提供对 VS2022 的支持
+- 提供对 VS2022、VS2026 的支持
 - putimage_withalpha() 支持缩放
 - ege_系列绘图函数支持设置线型(由 setlinestyle 设置)
 - MUSIC 类增加 RepeatPlay(), 支持循环播放

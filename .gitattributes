@@ -1,0 +1,16 @@
+# Image / archive binaries (no normalization)
+*.png binary
+*.jpg binary
+*.gif binary
+*.7z  binary
+*.lib binary
+*.a binary
+
+# Force LF for shell scripts (avoid accidental CRLF)
+*.sh text eol=lf
+
+# Force CRLF for batch scripts on Windows if needed (optional)
+*.bat text eol=crlf
+
+# Add other explicit eol exceptions below if truly required.
+# All remaining text files rely on auto detection / normalization.

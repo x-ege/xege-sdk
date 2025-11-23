@@ -1,0 +1,40 @@
+name: Windows MSVC Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, x86]
+        build_type: [Release, Debug]
+      fail-fast: false
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+    
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+    
+    - name: Build
+      run: |
+        cmake --build build --config ${{ matrix.build_type }}
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: demos-windows-msvc-${{ matrix.arch }}-${{ matrix.build_type }}
+        path: build/*.exe
+        if-no-files-found: warn

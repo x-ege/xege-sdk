@@ -1,0 +1,42 @@
+name: Ubuntu MinGW-w64 Cross-Compile
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ubuntu-mingw:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+      fail-fast: false
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install MinGW-w64
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mingw-w64 cmake
+    
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+    
+    - name: Build
+      run: |
+        cmake --build build --config ${{ matrix.build_type }}
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: demos-ubuntu-mingw-${{ matrix.build_type }}
+        path: build/*.exe
+        if-no-files-found: warn

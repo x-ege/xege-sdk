@@ -905,7 +905,7 @@ inline void Bound::topAlign   (int top)      { setY(top);                  }
 inline void Bound::rightAlign (int right)    { setX(right  - width());     }
 inline void Bound::bottomAlign(int bottom)   { setY(bottom - height());    }
 inline void Bound::horizontalAlign(int x)    { setX(x + left - centerX()); }
-inline void Bound::verticalAlign  (int y)    { setY(y - top  - centerY()); }
+inline void Bound::verticalAlign  (int y)    { setY(y + top - centerY()); }
 inline void Bound::centerAlign(int x, int y) { centerAlign(Point(x, y));   }
 
 inline void Bound::centerAlign(const Point& point)
@@ -1013,7 +1013,7 @@ inline bool Bound::normalize()
 
     if (left > right) {
         flipHorizonal();
-        changed = false;
+        changed = true;
     }
 
     if (top > bottom) {
@@ -1568,7 +1568,7 @@ inline void Rect::inset(int leftMargin, int topMargin, int rightMargin, int bott
     x += leftMargin;
     y += topMargin;
     width  -= (leftMargin  + rightMargin);
-    height -= (rightMargin + bottomMargin);
+    height -= (topMargin  + bottomMargin);
 }
 
 inline void Rect::outset(int margin)     { inset(-margin);  }
@@ -1925,7 +1925,7 @@ inline bool Rect::clipByLimits(int& x,  int& length, int minval, int maxval)
         right = x;
     }
 
-    if ((left > maxval) || (right < maxval))
+    if ((left > maxval) || (right < minval))
         return false;
 
     int clipLeft  = EGE_TEMP_MAX(left,  minval);

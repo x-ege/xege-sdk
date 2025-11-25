@@ -111,16 +111,16 @@ public:
 
         DeviceList(const DeviceList&) = delete;
 
-        DeviceList(DeviceList&& d) noexcept : info(d.info), count(d.count)
+        DeviceList(DeviceList&& d) : info(d.info), count(d.count)
         {
-            d.info  = nullptr; // 避免析构时重复释放
-            d.count = 0;
+            const_cast<DeviceInfo*&>(d.info) = nullptr; // 避免析构时重复释放
+            const_cast<int&>(d.count)        = 0;
         }
 
         DeviceList& operator=(const DeviceList&) = delete;
         ~DeviceList();
-        DeviceInfo* info  = nullptr; ///< 设备信息(数组)
-        int         count = 0;       ///< 设备数量
+        const DeviceInfo* info  = nullptr; ///< 设备信息(数组)
+        const int         count = 0;       ///< 设备数量
     };
 
     /**

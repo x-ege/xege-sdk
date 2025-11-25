@@ -70,8 +70,8 @@ pimg
 <font color=#008080>ege_outtextxy</font>(10, 40, c);
 
 <font color=#008000>// 示例3：输出数值，先将数字格式化输出为字符串
-</font><font color=#0000FF>char </font>s[5];
-<font color=#008080>sprintf</font>(s, <font color=#FF00FF>"value:%d"</font>, 1024);
+</font><font color=#0000FF>char </font>s[32];
+<font color=#008080>snprintf</font>(s, <font color=#0000FF>sizeof</font>(s), <font color=#FF00FF>"value:%d"</font>, 1024);
 <font color=#008080>ege_outtextxy</font>(10.0f, 60.5f,  s);
 
 <font color=#008000>// 示例3 可以直接用 ege_xyprintf 代替</font>

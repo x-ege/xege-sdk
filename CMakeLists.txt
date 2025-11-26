@@ -123,7 +123,7 @@ foreach(DEMO_SRC ${DEMO_SRCS})
     add_dependencies(demos ${DEMO_NAME})
 endforeach()
 
-target_sources(egerotateimage PRIVATE demo/egelogo.rc)
+target_sources(graph_rotateimage PRIVATE demo/egelogo.rc)
 
 message(CHECK_START "Finding GMP Library")
 include(CheckCXXSourceCompiles)

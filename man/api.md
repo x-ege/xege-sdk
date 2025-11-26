@@ -366,7 +366,7 @@ int main() {
 ### 控制台输入
 
 - `scanf(const char* format, ...)` - 格式化输入
-- `gets(char* buffer)` - 字符串输入
+- `fgets(char* buffer, int size, FILE* stream)` - 安全的字符串输入（推荐使用，代替已废弃的 gets）
 
 ---
 

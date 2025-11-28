@@ -116,15 +116,15 @@
 
 | Demo | 说明 |
 |------|------|
-| `camera_base.cpp` | 📷 **相机基础演示** - 摄像头画面采集与显示 |
-| `camera_wave.cpp` | 🌊 **相机波浪效果** - 演示相机捕捉与实时图像处理 |
-| `game_gomoku.cpp` | 🎯 **五子棋游戏** - 支持简单 AI 对战、落棋音效、抗锯齿棋子 |
-| `graph_sort_visualization.cpp` | 📊 **排序可视化** - 直观展示各种排序算法的执行过程 |
-| `graph_function_visualization.cpp` | 📈 **函数绘制** - 蒙特卡洛法绘制二元函数图像 |
-| `graph_astar_pathfinding.cpp` | 🗺️ **A* 寻路算法** - 经典启发式搜索算法可视化，支持迷宫生成 |
-| `graph_boids.cpp` | 🐦 **Boids 群集模拟** - 模拟鸟群/鱼群的涌现行为 |
-| `graph_game_of_life.cpp` | 🧬 **康威生命游戏** - 元胞自动机经典演示，内置多种预设图案 |
-| `graph_kmeans.cpp` | 🔵 **K-Means 聚类** - 机器学习聚类算法可视化 |
+| [camera_base](https://github.com/x-ege/xege/blob/master/demo/camera_base.cpp) | 📷 **相机基础演示** - 摄像头画面采集与显示 |
+| [camera_wave](https://github.com/x-ege/xege/blob/master/demo/camera_wave.cpp) | 🌊 **相机波浪效果** - 演示相机捕捉与实时图像处理 |
+| [game_gomoku](https://github.com/x-ege/xege/blob/master/demo/game_gomoku.cpp) | 🎯 **五子棋游戏** - 支持简单 AI 对战、落棋音效、抗锯齿棋子 |
+| [graph_sort_visualization](https://github.com/x-ege/xege/blob/master/demo/graph_sort_visualization.cpp) | 📊 **排序可视化** - 直观展示各种排序算法的执行过程 |
+| [graph_function_visualization](https://github.com/x-ege/xege/blob/master/demo/graph_function_visualization.cpp) | 📈 **函数绘制** - 蒙特卡洛法绘制二元函数图像 |
+| [graph_astar_pathfinding](https://github.com/x-ege/xege/blob/master/demo/graph_astar_pathfinding.cpp) | 🗺️ **A* 寻路算法** - 经典启发式搜索算法可视化，支持迷宫生成 |
+| [graph_boids](https://github.com/x-ege/xege/blob/master/demo/graph_boids.cpp) | 🐦 **Boids 群集模拟** - 模拟鸟群/鱼群的涌现行为 |
+| [graph_game_of_life](https://github.com/x-ege/xege/blob/master/demo/graph_game_of_life.cpp) | 🧬 **康威生命游戏** - 元胞自动机经典演示，内置多种预设图案 |
+| [graph_kmeans](https://github.com/x-ege/xege/blob/master/demo/graph_kmeans.cpp) | 🔵 **K-Means 聚类** - 机器学习聚类算法可视化 |
 
 此外，示例库还包含更多精彩 Demo（分形绘制、时钟、星空效果等），欢迎探索！
 
@@ -142,11 +142,61 @@
 
 ---
 
+## 🔌 IDE 插件
+
+为了让开发者更便捷地使用 EGE，我们提供了主流 IDE 的官方插件支持：
+
+### CLion 插件（全新发布）
+
+**XEGE Creator** 是专为 JetBrains CLion 打造的 EGE 项目向导插件，帮助你快速创建和配置 EGE 图形程序项目。
+
+| 信息 | 链接 |
+|------|------|
+| 插件商店 | [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/28785-xege-creator) |
+| 源码仓库 | <https://github.com/x-ege/ege-clion-plugin> |
+
+**功能特性**：
+
+- ✨ 一键创建 EGE 项目，自动配置 CMake 构建系统
+- 🔧 支持预编译库模式和源码模式两种使用方式
+- 🌍 完整的多平台支持（Windows MinGW/MSVC、macOS、Linux）
+- 🌐 中英文双语界面，根据系统语言自动切换
+
+**安装方式**：
+
+1. 打开 CLion → `Settings/Preferences → Plugins`
+2. 在 `Marketplace` 搜索 "XEGE Creator"
+3. 点击 `Install` 安装并重启 CLion
+
+### VSCode 插件
+
+**EGE** 插件为 Visual Studio Code 用户提供一站式开发体验。
+
+| 信息 | 链接 |
+|------|------|
+| 插件商店 | [VS Marketplace](https://marketplace.visualstudio.com/items?itemName=wysaid.ege) |
+| 源码仓库 | <https://github.com/x-ege/ege-vscode-plugin> |
+
+**功能特性**：
+
+- 📁 一键生成 EGE 项目（支持预编译库和源码两种模板）
+- ▶️ 单文件快速编译运行，无需复杂配置
+- 🍎 支持 macOS/Linux（通过 mingw-w64 + wine 跨平台编译）
+- 🌐 中英文双语界面，自动适配 VS Code 语言设置
+
+**安装方式**：
+
+1. 打开 VS Code → 扩展面板（`Ctrl+Shift+X`）
+2. 搜索 "ege" 或 "xege"
+3. 点击安装
+
+---
+
 ## 📦 下载与安装
 
 ### 预编译 SDK
 
-请查看: <https://xege.org/install_and_config>
+查看: <https://xege.org/install_and_config>
 
 ### 仓库地址
 

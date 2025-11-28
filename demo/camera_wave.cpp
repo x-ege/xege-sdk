@@ -12,15 +12,21 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 #endif
 
+#ifndef NOMINMAX
+#define NOMINMAX 1
+#endif
+
 #include <cstdio>
 
 #include <graphics.h>
 #include <ege/camera_capture.h>
 
+#include <memory>
 #include <vector>
 #include <string>
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 // 文本本地化宏定义
 #ifdef _MSC_VER
@@ -37,7 +43,16 @@
 #define TEXT_CAMERA_DEVICE     "相机设备: %s"
 #define TEXT_CPP11_REQUIRED    "需要 C++11 或更高版本。"
 #define TEXT_INTENSITY_RULE    "拖拽变形网格。弹性强度: %g"
-#define TEXT_INFO_MSG          "按 '+' 或 '-' 调整弹性。作者: wysaid: http://xege.org"
+#define TEXT_INFO_MSG          "按 '+' 或 '-' 调整弹性, ↑/↓ 切换分辨率。作者: wysaid: http://xege.org"
+#define TEXT_CAMERA_LIST_TITLE "可用相机设备:"
+#define TEXT_CAMERA_LIST_ITEM  "  [%d] %s"
+#define TEXT_CAMERA_SWITCH     "按空格键切换相机，或按数字键选择 | 当前: [%d] %s"
+#define TEXT_SWITCHING_CAMERA  "正在切换到相机 %d..."
+#define TEXT_RESOLUTION_LIST_TITLE "支持的分辨率:"
+#define TEXT_RESOLUTION_ITEM       "  %dx%d"
+#define TEXT_RESOLUTION_CURRENT    " <-当前"
+#define TEXT_SWITCHING_RESOLUTION  "正在切换到分辨率 %dx%d..."
+#define TEXT_WINDOW_RESIZED        "窗口大小已调整为 %dx%d"
 #else
 // 非MSVC编译器使用英文文案
 #define TEXT_WINDOW_TITLE      "EGE camera wave By wysaid - 2025"
@@ -52,7 +67,16 @@
 #define TEXT_CAMERA_DEVICE     "Camera device: %s"
 #define TEXT_CPP11_REQUIRED    "C++11 or higher is required."
 #define TEXT_INTENSITY_RULE    "Drag to deform mesh. Intensity: %g"
-#define TEXT_INFO_MSG          "Press '+' or '-' to adjust elasticity. By wysaid: http://xege.org"
+#define TEXT_INFO_MSG          "Press '+'/'-' for elasticity, UP/DOWN for resolution. By wysaid: http://xege.org"
+#define TEXT_CAMERA_LIST_TITLE "Available cameras:"
+#define TEXT_CAMERA_LIST_ITEM  "  [%d] %s"
+#define TEXT_CAMERA_SWITCH     "Press SPACE to switch camera, or press number key | Current: [%d] %s"
+#define TEXT_SWITCHING_CAMERA  "Switching to camera %d..."
+#define TEXT_RESOLUTION_LIST_TITLE "Supported resolutions:"
+#define TEXT_RESOLUTION_ITEM       "  %dx%d"
+#define TEXT_RESOLUTION_CURRENT    " <-Current"
+#define TEXT_SWITCHING_RESOLUTION  "Switching to resolution %dx%d..."
+#define TEXT_WINDOW_RESIZED        "Window resized to %dx%d"
 #endif
 
 // 判断一下 C++ 版本, 低于 C++11 的编译器不支持
@@ -67,6 +91,10 @@ int main()
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 720
+
+// 窗口尺寸限制
+#define MIN_LONG_EDGE  640   // 窗口长边最小值
+#define MAX_LONG_EDGE  1920  // 窗口长边最大值
 
 /// 结合水波荡漾的 Demo, 给一个相机的版本
 
@@ -488,6 +516,85 @@ private:
     int    m_outputWidth, m_outputHeight;
 };
 
+// 根据相机分辨率调整窗口大小，保持比例一致
+// 返回 true 表示窗口大小发生了变化
+bool adjustWindowToCamera(int cameraWidth, int cameraHeight, PIMAGE& target, Net& net)
+{
+    int windowWidth = getwidth();
+    int windowHeight = getheight();
+
+    // 计算相机的长边和短边
+    int cameraLongEdge = (std::max)(cameraWidth, cameraHeight);
+    int cameraShortEdge = (std::min)(cameraWidth, cameraHeight);
+    float cameraRatio = (float)cameraWidth / cameraHeight;
+
+    // 获取屏幕可用区域（考虑任务栏）
+    RECT workArea;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
+    int screenAvailWidth = workArea.right - workArea.left;
+    int screenAvailHeight = workArea.bottom - workArea.top;
+    // 留一点边距，避免窗口贴边
+    screenAvailWidth -= 20;
+    screenAvailHeight -= 40;
+
+    // 计算目标窗口长边
+    int targetLongEdge = cameraLongEdge;
+
+    // 限制1：长边不能小于 MIN_LONG_EDGE
+    if (targetLongEdge < MIN_LONG_EDGE) {
+        targetLongEdge = MIN_LONG_EDGE;
+    }
+
+    // 限制2：长边不能大于 MAX_LONG_EDGE
+    if (targetLongEdge > MAX_LONG_EDGE) {
+        targetLongEdge = MAX_LONG_EDGE;
+    }
+
+    // 根据长边和比例计算窗口尺寸
+    int newWidth, newHeight;
+    if (cameraWidth >= cameraHeight) {
+        // 横向视频，宽度是长边
+        newWidth = targetLongEdge;
+        newHeight = (int)(newWidth / cameraRatio);
+    } else {
+        // 纵向视频，高度是长边
+        newHeight = targetLongEdge;
+        newWidth = (int)(newHeight * cameraRatio);
+    }
+
+    // 限制3：不能超过屏幕可用区域
+    if (newWidth > screenAvailWidth) {
+        float scale = (float)screenAvailWidth / newWidth;
+        newWidth = screenAvailWidth;
+        newHeight = (int)(newHeight * scale);
+    }
+    if (newHeight > screenAvailHeight) {
+        float scale = (float)screenAvailHeight / newHeight;
+        newHeight = screenAvailHeight;
+        newWidth = (int)(newWidth * scale);
+    }
+
+    // 如果新尺寸与当前尺寸相同，无需调整
+    if (newWidth == windowWidth && newHeight == windowHeight) {
+        return false;
+    }
+
+    // 调用 initgraph 调整窗口大小 (无需 closegraph)
+    initgraph(newWidth, newHeight, INIT_RENDERMANUAL);
+    setcaption(TEXT_WINDOW_TITLE);
+    setbkmode(TRANSPARENT);
+
+    // 重新创建目标图像并重新初始化网格
+    delimage(target);
+    target = newimage(newWidth, newHeight);
+    net.setOutputTarget(target);
+
+    printf(TEXT_WINDOW_RESIZED, newWidth, newHeight);
+    printf("\n");
+
+    return true;
+}
+
 void showErrorWindow()
 {
     settarget(nullptr);
@@ -504,6 +611,62 @@ void showErrorWindow()
     closegraph();
 }
 
+// 切换相机设备的辅助函数
+bool switchCamera(ege::CameraCapture& camera, int deviceIndex, int deviceCount, int resWidth = WINDOW_WIDTH, int resHeight = WINDOW_HEIGHT)
+{
+    if (deviceIndex < 0 || deviceIndex >= deviceCount) {
+        return false;
+    }
+
+    // 先关闭当前相机
+    if (camera.isStarted()) {
+        camera.close();
+    }
+
+    // 设置相机分辨率
+    camera.setFrameSize(resWidth, resHeight);
+    camera.setFrameRate(30);
+
+    // 打开新相机
+    if (!camera.open(deviceIndex)) {
+        return false;
+    }
+
+    camera.start();
+    return true;
+}
+
+// 分辨率信息结构体
+struct ResolutionItem
+{
+    int width;
+    int height;
+};
+
+// 获取并保存分辨率列表
+std::vector<ResolutionItem> getResolutionList(ege::CameraCapture& camera)
+{
+    std::vector<ResolutionItem> resolutions;
+    auto resList = camera.getDeviceSupportedResolutions();
+    if (resList.count > 0) {
+        for (int i = 0; i < resList.count; ++i) {
+            resolutions.push_back({resList.info[i].width, resList.info[i].height});
+        }
+    }
+    return resolutions;
+}
+
+// 根据当前帧分辨率找到对应的分辨率索引
+int findCurrentResolutionIndex(const std::vector<ResolutionItem>& resolutions, int width, int height)
+{
+    for (size_t i = 0; i < resolutions.size(); ++i) {
+        if (resolutions[i].width == width && resolutions[i].height == height) {
+            return static_cast<int>(i);
+        }
+    }
+    return 0; // 如果找不到，返回第一个
+}
+
 int main()
 {
     /// 在相机的高吞吐场景下, 不设置 RENDERMANUAL 会出现闪屏.
@@ -514,17 +677,27 @@ int main()
     ege::CameraCapture camera;
     PIMAGE             target = newimage(getwidth(), getheight());
     char               msgBuffer[1024];
+    char               intensityBuffer[256];
 
     setbkmode(TRANSPARENT);
     setcolor(YELLOW, target);
-    sprintf(msgBuffer, TEXT_INTENSITY_RULE, net.getIntensity());
+    sprintf(intensityBuffer, TEXT_INTENSITY_RULE, net.getIntensity());
 
     net.initNet(80, 60, nullptr, target);
 
     // 0: 不输出日志, 1: 输出警告日志, 2: 输出常规信息, 3: 输出调试信息, 超过 3 等同于 3.
     ege::enableCameraModuleLog(2);
 
-    { /// 打印一下所有相机设备的名称
+    // 保存设备信息
+    std::vector<std::string> deviceNames;
+    int                      deviceCount        = 0;
+    int                      currentDeviceIndex = 0;
+
+    // 分辨率相关
+    std::vector<ResolutionItem> resolutions;
+    int                         currentResolutionIndex = 0;
+
+    { /// 获取所有相机设备的名称
         auto devices = camera.findDeviceNames();
 
         if (devices.count == 0) {
@@ -533,25 +706,24 @@ int main()
             return -1;
         }
 
+        deviceCount = devices.count;
         for (int i = 0; i < devices.count; ++i) {
+            deviceNames.push_back(devices.info[i].name);
             printf(TEXT_CAMERA_DEVICE, devices.info[i].name);
             printf("\n");
         }
     }
 
-    { /// 设置一下相机分辨率
-        camera.setFrameSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        camera.setFrameRate(30);
-    }
-
-    // 这里打开第一个相机设备
-    if (!camera.open(0)) {
+    // 打开第一个相机设备
+    if (!switchCamera(camera, 0, deviceCount)) {
         fputs(TEXT_ERROR_OPEN_FAILED, stderr);
         return -1;
     }
 
-    camera.start();
-    CameraFrame* frame = nullptr;
+    // 获取分辨率列表
+    resolutions = getResolutionList(camera);
+
+    std::shared_ptr<CameraFrame> frame;
 
     { // 尝试获取一帧数据, 最多等五秒, 如果失败, 直接退出.
         frame = camera.grabFrame(5000);
@@ -568,12 +740,10 @@ int main()
     for (; camera.isStarted() && is_run(); delay_fps(60)) {
         cleardevice();
 
-        // 0 表示不等待, 直接返回, 要处理一下返回值为 nullptr 的情况.
-        auto* newFrame = camera.grabFrame(0);
+        // 0 表示不等待, 直接返回, 要处理一下返回值为空的情况.
+        auto newFrame = camera.grabFrame(0);
         if (newFrame) {
-            if (frame) {
-                frame->release();
-            }
+            // 使用 shared_ptr，无需手动释放旧帧
             frame = newFrame;
             net.setTextureImage(frame->getImage());
         }
@@ -586,32 +756,174 @@ int main()
         if (keystate(key_mouse_l)) {
             int x, y;
             mousepos(&x, &y);
-            net.catchPoint(x / (float)WINDOW_WIDTH, y / (float)WINDOW_HEIGHT);
+            net.catchPoint(x / (float)getwidth(), y / (float)getheight());
         } else {
             net.releasePoint();
         }
 
         if (kbhit()) {
-            switch (getch()) {
+            auto keyMsg = getkey();
+            int key    = keyMsg.key;
+            int newDeviceIndex = -1;
+            int newResolutionIndex = -1;
+
+            switch (key) {
             case '+':
+            case '=':
                 net.intensityInc(0.005f);
+                sprintf(intensityBuffer, TEXT_INTENSITY_RULE, net.getIntensity());
                 break;
             case '-':
+            case '_':
                 net.intensityDec(0.005f);
+                sprintf(intensityBuffer, TEXT_INTENSITY_RULE, net.getIntensity());
                 break;
-            case 27:
+            case key_up:
+                // 上箭头键：切换到上一个分辨率
+                if (!resolutions.empty()) {
+                    newResolutionIndex = (currentResolutionIndex - 1 + static_cast<int>(resolutions.size())) % static_cast<int>(resolutions.size());
+                }
+                break;
+            case key_down:
+                // 下箭头键：切换到下一个分辨率
+                if (!resolutions.empty()) {
+                    newResolutionIndex = (currentResolutionIndex + 1) % static_cast<int>(resolutions.size());
+                }
+                break;
+            case ' ':
+                // 空格键：切换到下一个相机
+                newDeviceIndex = (currentDeviceIndex + 1) % deviceCount;
+                break;
+            case key_esc:
                 exit(0);
+            default:
+                // 数字键：切换到指定相机
+                if (key >= '0' && key <= '9') {
+                    int requestedIndex = key - '0';
+                    if (requestedIndex < deviceCount) {
+                        newDeviceIndex = requestedIndex;
+                    }
+                }
+                break;
             }
+
+            // 切换相机设备
+            if (newDeviceIndex >= 0 && newDeviceIndex != currentDeviceIndex) {
+                printf(TEXT_SWITCHING_CAMERA, newDeviceIndex);
+                printf("\n");
+
+                // 使用 shared_ptr，释放引用即可
+                frame.reset();
+
+                if (switchCamera(camera, newDeviceIndex, deviceCount)) {
+                    currentDeviceIndex = newDeviceIndex;
+                    // 获取新相机的分辨率列表
+                    resolutions = getResolutionList(camera);
+                    currentResolutionIndex = 0;
+                    // 获取新相机的第一帧
+                    frame = camera.grabFrame(5000);
+                    if (frame) {
+                        net.setTextureImage(frame->getImage());
+                    }
+                }
+            }
+
+            // 切换分辨率
+            if (newResolutionIndex >= 0 && newResolutionIndex != currentResolutionIndex && !resolutions.empty()) {
+                int newWidth = resolutions[newResolutionIndex].width;
+                int newHeight = resolutions[newResolutionIndex].height;
+                printf(TEXT_SWITCHING_RESOLUTION, newWidth, newHeight);
+                printf("\n");
+
+                frame.reset();
+
+                if (switchCamera(camera, currentDeviceIndex, deviceCount, newWidth, newHeight)) {
+                    currentResolutionIndex = newResolutionIndex;
+                    // 调整窗口大小以匹配相机分辨率比例
+                    adjustWindowToCamera(newWidth, newHeight, target, net);
+                    // 获取新分辨率的第一帧
+                    frame = camera.grabFrame(5000);
+                    if (frame) {
+                        net.setTextureImage(frame->getImage());
+                    }
+                }
+            }
+
             flushkey();
-            sprintf(msgBuffer, TEXT_INTENSITY_RULE, net.getIntensity());
         }
 
         net.drawNet();
         net.update();
         putimage(0, 0, target);
-        setcolor(0x00ff0000);
-        outtextxy(10, 10, TEXT_INFO_MSG);
-        outtextxy(10, 30, msgBuffer);
+
+        // 显示相机设备列表
+        int textY = 10;
+        setcolor(0x00ff0000); // 红色
+        outtextxy(10, textY, TEXT_INFO_MSG);
+        textY += 20;
+        outtextxy(10, textY, intensityBuffer);
+        textY += 25;
+
+        // 显示设备列表标题
+        setcolor(YELLOW);
+        outtextxy(10, textY, TEXT_CAMERA_LIST_TITLE);
+        textY += 18;
+
+        // 显示每个设备
+        for (int i = 0; i < deviceCount; ++i) {
+            if (i == currentDeviceIndex) {
+                setcolor(LIGHTGREEN);
+            } else {
+                setcolor(WHITE);
+            }
+            sprintf(msgBuffer, TEXT_CAMERA_LIST_ITEM, i, deviceNames[i].c_str());
+            outtextxy(10, textY, msgBuffer);
+            textY += 16;
+        }
+
+        // 如果有多个相机，显示切换提示
+        if (deviceCount > 1) {
+            textY += 5;
+            setcolor(CYAN);
+            sprintf(msgBuffer, TEXT_CAMERA_SWITCH, currentDeviceIndex, deviceNames[currentDeviceIndex].c_str());
+            outtextxy(10, textY, msgBuffer);
+            textY += 20;
+        }
+
+        // 显示分辨率列表
+        if (!resolutions.empty()) {
+            textY += 10;
+            setcolor(YELLOW);
+            outtextxy(10, textY, TEXT_RESOLUTION_LIST_TITLE);
+            textY += 18;
+
+            // 获取当前帧的分辨率来更新索引
+            if (frame && frame->getImage()) {
+                currentResolutionIndex = findCurrentResolutionIndex(resolutions, frame->getWidth(), frame->getHeight());
+            }
+
+            // 最多显示6个分辨率，避免占用太多屏幕空间
+            int displayCount = std::min(static_cast<int>(resolutions.size()), 6);
+            int startIndex = 0;
+
+            // 如果分辨率列表很长，以当前选中的为中心显示
+            if (resolutions.size() > 6) {
+                startIndex = std::max(0, currentResolutionIndex - 3);
+                startIndex = std::min(startIndex, static_cast<int>(resolutions.size()) - 6);
+            }
+
+            for (int i = startIndex; i < startIndex + displayCount && i < static_cast<int>(resolutions.size()); ++i) {
+                if (i == currentResolutionIndex) {
+                    setcolor(LIGHTGREEN);
+                    sprintf(msgBuffer, TEXT_RESOLUTION_ITEM TEXT_RESOLUTION_CURRENT, resolutions[i].width, resolutions[i].height);
+                } else {
+                    setcolor(WHITE);
+                    sprintf(msgBuffer, TEXT_RESOLUTION_ITEM, resolutions[i].width, resolutions[i].height);
+                }
+                outtextxy(10, textY, msgBuffer);
+                textY += 14;
+            }
+        }
     }
 
     fputs(TEXT_CAMERA_CLOSED, stderr);

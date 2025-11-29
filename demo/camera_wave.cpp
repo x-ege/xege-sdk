@@ -85,6 +85,7 @@
 
 int main()
 {
+    fputs(TEXT_CPP11_REQUIRED, stderr);
     return 0;
 }
 #else

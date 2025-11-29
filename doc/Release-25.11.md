@@ -49,6 +49,17 @@
 
 ## 🔧 改进优化
 
+### MSVC Debug/Release 库分离
+
+由于相机捕捉功能（ccap）使用了 C++17 特性和大量 STL，MSVC 的 Debug 和 Release 配置存在运行时库不兼容问题（`_ITERATOR_DEBUG_LEVEL` 值不同、容器内存布局不同等）。本版本为 MSVC 提供了独立的 Debug 版本静态库：
+
+| 编译器 | Release 配置 | Debug 配置 |
+|--------|-------------|-----------|
+| MSVC | `graphics.lib` | `graphicsd.lib` |
+| MinGW | `libgraphics.a` | （无需区分） |
+
+头文件通过 `_DEBUG` 宏自动选择正确的库，**用户无需手动配置**。
+
 ### 渲染性能提升
 
 - 图像像素默认颜色格式由 `ARGB32` 改为 `PRGB32`（预乘Alpha），**显著提升渲染效率**

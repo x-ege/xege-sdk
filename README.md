@@ -33,6 +33,7 @@
 - 增加对 Visual Studio 2026 的支持。
 - 优化项目配置，在编译器支持 C++17 时自动开启 C++17，并定义宏 `EGE_ENABLE_CPP17=1`。
 - 优化静态库编译参数，同时支持 `/MD` 和 `/MT` 编译。
+- MSVC 版本新增 Debug 版本静态库 `graphicsd.lib`，解决 Debug/Release 模式下 STL 不兼容的问题。头文件会根据 `_DEBUG` 宏自动选择正确的库。
 - `ege.h` 提供双语版本（英文版为默认版本，中文版 `ege.zh_CN.h` 主要用于生成文档）。
 - 示例代码中的 `sprintf` 改为更安全的 `snprintf`。
 
@@ -76,6 +77,7 @@
 
 - 移除 `libpng` 和 `zlib` 依赖，简化编译配置。
 - 优化 CMake 配置，添加构建选项允许设置不构建示例程序。
+- 优化 CMake 配置，为 MSVC 添加 `/Zc:__cplusplus` 编译选项，使 `__cplusplus` 宏正确反映 C++ 标准版本。
 - 优化 GitHub Actions 工作流，增加 MinGW Windows 构建。
 - 增加编译测试模块，用于发现编译兼容性问题。
 - 添加单元测试相关模块和性能测试逻辑。
@@ -85,6 +87,7 @@
 ## EGE 24.04 版本改动
 
 ### 配置变更
+
 - 库文件名统一为 `graphics.lib` 或 `libgraphics.a`
 - 在 GCC 中使用 ege 库时，需要链接 `libgraphics.a`, `libgdi32.a`, `libgdiplus.a` 库，参数为 `-lgraphics -lgdi32 -lgdiplus`
 
@@ -151,6 +154,7 @@
 - 修复 keystate 在打开文件对话窗口后失效的问题
 
 ### 功能调整
+
 - getimage() 返回值类型统一为 int, 表示是否成功读取图像
 - saveimage() 根据文件名后缀确定保存为 PNG 格式还是 BMP 格式(优先保存为 PNG 格式)
 - resize() 恢复为自动填充背景色(20.08 行为改为不填充，现恢复)，另新增不填充背景色的 resize_f()
@@ -166,6 +170,7 @@
 - color_t 恢复为与 uint32_t 一致的 unsigned int 类型(20.08 改为 DWORD)
 
 ### 其它
+
 - 绘图性能优化(GDI+ 实现的图形绘制以及 GDI 的直线绘制)
 - 减少初次显示屏幕时的闪烁
 - 图片读取速度优化

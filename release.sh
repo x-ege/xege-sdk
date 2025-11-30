@@ -145,24 +145,34 @@ fi
 
 # 打包（优先 7z/7za；如果没有，尝试使用 PowerShell 生成 ZIP）
 echo ""
-echo "Creating archive: $RELEASE_ARCHIVE"
+
+RELEASE_ARCHIVE_7Z="$THIS_DIR/${RELEASE_DIR_NAME}.7z"
+RELEASE_ARCHIVE_ZIP="$THIS_DIR/${RELEASE_DIR_NAME}.zip"
 
 if command -v 7z >/dev/null 2>&1; then
-    echo "Using 7z to create archive: $RELEASE_ARCHIVE"
-    7z a -t7z -mx=9 "$RELEASE_ARCHIVE" "$RELEASE_DIR"
+    echo "Using 7z to create archives..."
+    echo "Creating 7z archive: $RELEASE_ARCHIVE_7Z"
+    7z a -t7z -mx=9 "$RELEASE_ARCHIVE_7Z" "$RELEASE_DIR"
+    echo "Creating zip archive: $RELEASE_ARCHIVE_ZIP"
+    7z a -tzip -mx=9 "$RELEASE_ARCHIVE_ZIP" "$RELEASE_DIR"
+    RELEASE_ARCHIVE="$RELEASE_ARCHIVE_7Z"
 elif command -v 7za >/dev/null 2>&1; then
-    echo "Using 7za to create archive: $RELEASE_ARCHIVE"
-    7za a -t7z -mx=9 "$RELEASE_ARCHIVE" "$RELEASE_DIR"
+    echo "Using 7za to create archives..."
+    echo "Creating 7z archive: $RELEASE_ARCHIVE_7Z"
+    7za a -t7z -mx=9 "$RELEASE_ARCHIVE_7Z" "$RELEASE_DIR"
+    echo "Creating zip archive: $RELEASE_ARCHIVE_ZIP"
+    7za a -tzip -mx=9 "$RELEASE_ARCHIVE_ZIP" "$RELEASE_DIR"
+    RELEASE_ARCHIVE="$RELEASE_ARCHIVE_7Z"
 else
-    # fallback: try powershell (pwsh or powershell)
+    # fallback: try powershell
     if command -v powershell >/dev/null 2>&1; then
-        # switch to .zip extension
-        RELEASE_ARCHIVE="$THIS_DIR/${RELEASE_DIR_NAME}.zip"
+        # 只能生成 zip
+        RELEASE_ARCHIVE="$RELEASE_ARCHIVE_ZIP"
         echo "7z not found — using PowerShell to create ZIP: $RELEASE_ARCHIVE"
 
         powershell -NoProfile -Command "Set-Location -LiteralPath '$THIS_DIR'; if (Test-Path -Path '$RELEASE_ARCHIVE') { Remove-Item -Force -Path '$RELEASE_ARCHIVE' } ; Compress-Archive -LiteralPath '$RELEASE_DIR_NAME' -DestinationPath '$RELEASE_ARCHIVE' -Force"
     else
-        echo "Error: Neither 7z/7za nor PowerShell (pwsh/powershell) is available to create archive."
+        echo "Error: Neither 7z/7za nor PowerShell is available to create archive."
         exit 1
     fi
 fi
@@ -171,5 +181,13 @@ fi
 
 echo ""
 echo "=== Release completed ==="
-echo "Archive: $RELEASE_ARCHIVE"
-ls -lh "$RELEASE_ARCHIVE"
+
+# 显示生成的压缩包
+if [[ -f "$RELEASE_ARCHIVE_7Z" ]]; then
+    echo "7z Archive: $RELEASE_ARCHIVE_7Z"
+    ls -lh "$RELEASE_ARCHIVE_7Z"
+fi
+if [[ -f "$RELEASE_ARCHIVE_ZIP" ]]; then
+    echo "ZIP Archive: $RELEASE_ARCHIVE_ZIP"
+    ls -lh "$RELEASE_ARCHIVE_ZIP"
+fi

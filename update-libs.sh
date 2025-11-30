@@ -176,6 +176,24 @@ for i in "${!COPY_MAPPING_SRC[@]}"; do
     performSync "${COPY_MAPPING_SRC[$i]}" "${COPY_MAPPING_DST[$i]}"
 done
 
+# 从 ege.h 中提取版本号并写入 version.txt
+EGE_HEADER="$THIS_DIR/include/ege.h"
+if [[ -f "$EGE_HEADER" ]]; then
+    VERSION_MAJOR=$(grep -E "^#define\s+EGE_VERSION_MAJOR\s+" "$EGE_HEADER" | awk '{print $3}')
+    VERSION_MINOR=$(grep -E "^#define\s+EGE_VERSION_MINOR\s+" "$EGE_HEADER" | awk '{print $3}')
+    VERSION_PATCH=$(grep -E "^#define\s+EGE_VERSION_PATCH\s+" "$EGE_HEADER" | awk '{print $3}')
+
+    if [[ -n "$VERSION_MAJOR" && -n "$VERSION_MINOR" && -n "$VERSION_PATCH" ]]; then
+        VERSION_STRING="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+        echo "$VERSION_STRING" >"$THIS_DIR/version.txt"
+        echo "Version: $VERSION_STRING written to version.txt"
+    else
+        echo "Warning: Failed to extract version from $EGE_HEADER"
+    fi
+else
+    echo "Warning: $EGE_HEADER not found, skipping version extraction"
+fi
+
 echo ""
 echo "=== Update completed ==="
 cat "$XEGE_LIB_DIR/buildInfo.txt"

@@ -149,28 +149,26 @@ echo ""
 RELEASE_ARCHIVE_7Z="$THIS_DIR/${RELEASE_DIR_NAME}.7z"
 RELEASE_ARCHIVE_ZIP="$THIS_DIR/${RELEASE_DIR_NAME}.zip"
 
+# 使用 7z/7za 创建压缩包的函数
+create_archives_with_7z() {
+    local cmd="$1"
+    echo "Using $cmd to create archives..."
+    echo "Creating 7z archive: $RELEASE_ARCHIVE_7Z"
+    "$cmd" a -t7z -mx=9 "$RELEASE_ARCHIVE_7Z" "$RELEASE_DIR"
+    echo "Creating zip archive: $RELEASE_ARCHIVE_ZIP"
+    "$cmd" a -tzip -mx=9 "$RELEASE_ARCHIVE_ZIP" "$RELEASE_DIR"
+}
+
 if command -v 7z >/dev/null 2>&1; then
-    echo "Using 7z to create archives..."
-    echo "Creating 7z archive: $RELEASE_ARCHIVE_7Z"
-    7z a -t7z -mx=9 "$RELEASE_ARCHIVE_7Z" "$RELEASE_DIR"
-    echo "Creating zip archive: $RELEASE_ARCHIVE_ZIP"
-    7z a -tzip -mx=9 "$RELEASE_ARCHIVE_ZIP" "$RELEASE_DIR"
-    RELEASE_ARCHIVE="$RELEASE_ARCHIVE_7Z"
+    create_archives_with_7z 7z
 elif command -v 7za >/dev/null 2>&1; then
-    echo "Using 7za to create archives..."
-    echo "Creating 7z archive: $RELEASE_ARCHIVE_7Z"
-    7za a -t7z -mx=9 "$RELEASE_ARCHIVE_7Z" "$RELEASE_DIR"
-    echo "Creating zip archive: $RELEASE_ARCHIVE_ZIP"
-    7za a -tzip -mx=9 "$RELEASE_ARCHIVE_ZIP" "$RELEASE_DIR"
-    RELEASE_ARCHIVE="$RELEASE_ARCHIVE_7Z"
+    create_archives_with_7z 7za
 else
     # fallback: try powershell
     if command -v powershell >/dev/null 2>&1; then
         # 只能生成 zip
-        RELEASE_ARCHIVE="$RELEASE_ARCHIVE_ZIP"
-        echo "7z not found — using PowerShell to create ZIP: $RELEASE_ARCHIVE"
-
-        powershell -NoProfile -Command "Set-Location -LiteralPath '$THIS_DIR'; if (Test-Path -Path '$RELEASE_ARCHIVE') { Remove-Item -Force -Path '$RELEASE_ARCHIVE' } ; Compress-Archive -LiteralPath '$RELEASE_DIR_NAME' -DestinationPath '$RELEASE_ARCHIVE' -Force"
+        echo "7z not found — using PowerShell to create ZIP: $RELEASE_ARCHIVE_ZIP"
+        powershell -NoProfile -Command "Set-Location -LiteralPath '$THIS_DIR'; if (Test-Path -Path '$RELEASE_ARCHIVE_ZIP') { Remove-Item -Force -Path '$RELEASE_ARCHIVE_ZIP' } ; Compress-Archive -LiteralPath '$RELEASE_DIR_NAME' -DestinationPath '$RELEASE_ARCHIVE_ZIP' -Force"
     else
         echo "Error: Neither 7z/7za nor PowerShell is available to create archive."
         exit 1

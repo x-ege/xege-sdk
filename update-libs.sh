@@ -56,8 +56,8 @@ if [[ $SKIP_DOWNLOAD -eq 1 && -f "$ARCHIVE_NAME" ]]; then
     export DID_SKIP_DOWNLOAD=true
 else
     echo "Downloading '$ARCHIVE_NAME' from $ARCHIVE_URL ..."
-    # remove any existing archives first to avoid confusion
-    rm -f *.7z || true
+    # remove the existing archive to avoid confusion
+    rm -f "$ARCHIVE_NAME" || true
     if command -v wget >/dev/null 2>&1; then
         wget "$ARCHIVE_URL" -O "$ARCHIVE_NAME"
     elif command -v curl >/dev/null 2>&1; then
@@ -160,7 +160,9 @@ function performSync() {
             rsync -a --delete "$src/" "$dst/"
         else
             # cp -r 复制目录内容
-            cp -r "$src"/* "$dst/" 2>/dev/null || true
+            if compgen -G "$src/*" >/dev/null 2>&1; then
+                cp -r "$src"/* "$dst/" || echo "Warning: Failed to copy some files from $src to $dst"
+            fi
         fi
     else
         # 文件直接复制

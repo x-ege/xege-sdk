@@ -1809,16 +1809,16 @@ color_t EGEAPI alphablend_premultiplied(color_t dst, color_t src);
 color_t EGEAPI alphablend_premultiplied(color_t dst, color_t src, unsigned char srcAlphaFactor);
 
 /**
- * @brief Convert PRGB32 to ARGB32
- * @param color PRGB32 color
+ * @brief Convert PARGB32 to ARGB32
+ * @param color PARGB32 color
  * @return ARGB32 color
  */
 color_t EGEAPI color_unpremultiply(color_t color);
 
 /**
- * @brief Convert ARGB32 to PRGB32
+ * @brief Convert ARGB32 to PARGB32
  * @param color ARGB32 color
- * @return PRGB32 color
+ * @return PARGB32 color
  */
 color_t EGEAPI color_premultiply(color_t color);
 

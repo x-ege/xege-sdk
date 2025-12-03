@@ -1826,10 +1826,10 @@ color_t EGEAPI color_premultiply(color_t color);
  * @brief Convert pixel color types of the image，convert from src color type to dst color type.
 * @details
 * - src == dst, do nothing.
-* - RGB32  --> ARGB32, RGB32 --> PRGB32, ARGB32 --> RGB32: set alpha to 0xFF
-* - ARGB32 --> PRGB32: premultiply alpha
-* - PRGB32 --> ARGB32: unpremultiply alpha
-* - PRGB32 -->  RGB32: unpremultiply alpha and then set alpha to 0xFF
+* - RGB32  --> ARGB32, RGB32 --> PARGB32, ARGB32 --> RGB32: set alpha to 0xFF
+* - ARGB32 --> PARGB32: premultiply alpha
+* - PARGB32 --> ARGB32: unpremultiply alpha
+* - PARGB32 -->  RGB32: unpremultiply alpha and then set alpha to 0xFF
  * @param pimg Target image to convert
  * @param src Source color type
  * @param dst Destination color type

@@ -93,8 +93,8 @@ declare -a COPY_MAPPING_SRC=(
     lib/devcpp
     lib/redpanda
 
-    # 只保留 vs2019, 兼容 vs2017~vs2026
-    lib/vs2019
+    # 只保留 msvc, 兼容 vs2017~vs2026
+    lib/msvc
 
     # vs2010 需要特殊处理 (参考插件项目规则)
     lib/vs2010/x86
@@ -111,8 +111,8 @@ declare -a COPY_MAPPING_DST=(
     lib/devcpp
     lib/redpanda
 
-    # 只保留 vs2019, 兼容 vs2017~vs2026
-    lib/vs2019
+    # 只保留 msvc, 兼容 vs2017~vs2026
+    lib/msvc
 
     # vs2010 特殊映射: x86 -> vs2010 根目录, x64 -> vs2010/amd64
     lib/vs2010

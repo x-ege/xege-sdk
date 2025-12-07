@@ -26,16 +26,16 @@ message(STATUS "ege include dir: ${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # 设置静态库搜索路径
 if(MSVC)
-    # 设置 MSVC 编译选项, 当版本大于 vs2019 时, 使用 c++17 标准.
+    # 设置 MSVC 编译选项, 使用 c++17 标准.
     set(CPP_COMPILE_OPTIONS "/std:c++17")
 
     if(MSVC_VERSION GREATER_EQUAL 1910)
-        # vs2017 及以上版本统一使用 vs2019 静态库
-        # vs2019 的静态库与 vs2017, vs2019, vs2022, vs2026 兼容
+        # vs2017 及以上版本统一使用 msvc 静态库
+        # msvc 静态库与 vs2017, vs2019, vs2022, vs2026 兼容
         if(CMAKE_CL_64)
-            set(osLibDir "vs2019/x64")
+            set(osLibDir "msvc/x64")
         else()
-            set(osLibDir "vs2019/x86")
+            set(osLibDir "msvc/x86")
         endif()
     elseif(MSVC_VERSION GREATER_EQUAL 1900)
         # vs2015

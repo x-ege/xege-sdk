@@ -62,7 +62,7 @@
 
 ### MSVC 静态库发布优化
 
-为减少发布包体积，VS2017、VS2019、VS2022、VS2026 统一使用 VS2019 编译的静态库。由于 Visual Studio 2015 以上版本使用相同的 Universal CRT 运行时库，且 ABI 保持兼容，因此 VS2019 编译的静态库可以在所有现代 Visual Studio 版本（VS2017-VS2026）中使用。此优化减少发布包体积约 50MB。
+为减少发布包体积，VS2017、VS2019、VS2022、VS2026 统一使用同一套 MSVC 编译的静态库。由于 Visual Studio 2015 以上版本使用相同的 Universal CRT 运行时库，且 ABI 保持兼容，因此可以在所有现代 Visual Studio 版本（VS2017-VS2026）中使用。此优化减少发布包体积约 50MB。
 
 ### 渲染性能提升
 
@@ -223,7 +223,7 @@
 
 - Windows 7 及以上系统
 - 支持的编译器：Visual Studio 2010-2026, GCC/MinGW
-- 注：VS2017-VS2026 使用统一的 VS2019 编译的静态库（ABI 兼容）
+- 注：VS2017-VS2026 使用统一的 MSVC 编译的静态库（ABI 兼容）
 
 ---
 

@@ -34,7 +34,7 @@
 - 优化项目配置，在编译器支持 C++17 时自动开启 C++17，并定义宏 `EGE_ENABLE_CPP17=1`。
 - 优化静态库编译参数，同时支持 `/MD` 和 `/MT` 编译。
 - MSVC 版本新增 Debug 版本静态库 `graphicsd.lib`，解决 Debug/Release 模式下 STL 不兼容的问题。头文件会根据 `_DEBUG` 宏自动选择正确的库。
-- 优化 MSVC 静态库发布策略：VS2017、VS2019、VS2022、VS2026 统一使用 VS2019 编译的静态库，利用 MSVC ABI 兼容性减少发布包体积约 50MB。
+- 优化 MSVC 静态库发布策略：VS2017、VS2019、VS2022、VS2026 统一使用同一套 MSVC 编译的静态库，利用 MSVC ABI 兼容性减少发布包体积约 50MB。
 - `ege.h` 提供双语版本（英文版为默认版本，中文版 `ege.zh_CN.h` 主要用于生成文档）。
 - 示例代码中的 `sprintf` 改为更安全的 `snprintf`。
 

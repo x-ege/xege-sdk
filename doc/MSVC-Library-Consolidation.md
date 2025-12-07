@@ -2,7 +2,7 @@
 
 ## 概述
 
-从 EGE 25.11 版本开始，我们对 MSVC 静态库的发布策略进行了优化，将 VS2017、VS2019、VS2022、VS2026 统一使用 VS2019 编译的静态库。此改进减少了发布包体积约 52MB（从 86MB 降至 34MB），同时保持了对所有现代 Visual Studio 版本的完全兼容。
+从 EGE 25.11 版本开始，我们对 MSVC 静态库的发布策略进行了优化，将 VS2017、VS2019、VS2022、VS2026 统一使用同一套 MSVC 编译的静态库。此改进减少了发布包体积约 52MB（从 86MB 降至 34MB），同时保持了对所有现代 Visual Studio 版本的完全兼容。
 
 ## 技术背景
 
@@ -34,19 +34,19 @@
 
 ## 实施方案
 
-### 选择 VS2019 作为基准
+### 统一的 MSVC 库目录
 
-我们选择 VS2019 编译的静态库作为统一版本，原因如下：
+我们使用统一的 `lib/msvc` 目录存放 MSVC 编译的静态库，不再区分具体的 Visual Studio 版本。这样做的原因是：
 
-1. **广泛兼容性**: VS2019 位于现代 MSVC 版本的中间位置，向下兼容 VS2017，向上兼容 VS2022 和 VS2026
-2. **稳定性**: VS2019 是一个成熟稳定的版本，被广泛使用
-3. **工具链完整**: VS2019 提供完整的工具链和良好的 C++17 支持
+1. **广泛兼容性**: 由于 VS2015+ 的 ABI 兼容性，同一套静态库可以在所有现代 MSVC 版本中使用
+2. **更清晰的命名**: `msvc` 比 `vs2019` 更能表达"适用于所有 MSVC 版本"的含义
+3. **简化维护**: 避免因具体版本号带来的混淆
 
 ### 库文件结构
 
 ```
 lib/
-├── vs2019/
+├── msvc/
 │   ├── x64/
 │   │   ├── graphics.lib   (Release, x64)
 │   │   └── graphicsd.lib  (Debug, x64)
@@ -72,12 +72,12 @@ CMakeLists.txt 中的库选择逻辑：
 
 ```cmake
 if(MSVC_VERSION GREATER_EQUAL 1910)
-    # vs2017 及以上版本统一使用 vs2019 静态库
-    # vs2019 的静态库与 vs2017, vs2019, vs2022, vs2026 兼容
+    # vs2017 及以上版本统一使用 msvc 静态库
+    # msvc 静态库与 vs2017, vs2019, vs2022, vs2026 兼容
     if(CMAKE_CL_64)
-        set(osLibDir "vs2019/x64")
+        set(osLibDir "msvc/x64")
     else()
-        set(osLibDir "vs2019/x86")
+        set(osLibDir "msvc/x86")
     endif()
 endif()
 ```
@@ -86,7 +86,7 @@ endif()
 
 如果不使用 CMake，需要在项目中：
 
-1. 添加库搜索路径：`lib/vs2019/x64` 或 `lib/vs2019/x86`
+1. 添加库搜索路径：`lib/msvc/x64` 或 `lib/msvc/x86`
 2. 包含头文件目录：`include`
 3. 链接库会自动根据 `_DEBUG` 宏选择（在 `ege.h` 中通过 `#pragma comment` 实现）
 

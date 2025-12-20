@@ -189,6 +189,38 @@ strong {
 </style>
 """
 
+def convert_latex_formulas(html_content):
+    """
+    将 LaTeX 数学公式转换为 WordPress 兼容格式
+    - 单行公式 $...$ 转换为 [latex]...[/latex]
+    - 块级公式 $$...$$ 保持原样或转换为块级 LaTeX 标记
+    
+    Args:
+        html_content: 原始 HTML 内容
+        
+    Returns:
+        转换后的 HTML 内容
+    """
+    # 先处理块级公式 $$...$$（避免与单行公式冲突）
+    # 块级公式通常在 <p> 标签中，转换为单独的段落
+    def replace_block_latex(match):
+        latex_content = match.group(1).strip()
+        return f'<p style="text-align: center;">[latex display="true"]{latex_content}[/latex]</p>'
+    
+    # 匹配 $$...$$ 格式（非贪婪匹配）
+    html_content = re.sub(r'\$\$(.*?)\$\$', replace_block_latex, html_content, flags=re.DOTALL)
+    
+    # 处理单行公式 $...$
+    # 需要注意：避免匹配已经转换过的块级公式
+    def replace_inline_latex(match):
+        latex_content = match.group(1).strip()
+        return f'[latex]{latex_content}[/latex]'
+    
+    # 匹配单个 $ 包裹的内容（非贪婪匹配，且不跨多行）
+    html_content = re.sub(r'\$([^\$\n]+?)\$', replace_inline_latex, html_content)
+    
+    return html_content
+
 def convert_code_blocks_for_wordpress(html_content):
     """
     将标准的 <pre><code class="language-xxx"></code></pre> 格式
@@ -250,6 +282,9 @@ def convert_markdown_to_html(md_file_path, output_file_path):
     
     # 转换为 HTML
     html_content = markdown.markdown(md_content, extensions=extensions)
+    
+    # 转换 LaTeX 公式为 WordPress 兼容格式
+    html_content = convert_latex_formulas(html_content)
     
     # 转换代码块格式为 WordPress 兼容格式
     html_content = convert_code_blocks_for_wordpress(html_content)

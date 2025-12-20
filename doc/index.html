@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EGE 图形库 - 文档中心</title>
+    <!-- 代码高亮 -->
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/styles/github.min.css">
+    <!-- KaTeX 数学公式渲染 -->
+    <link rel="stylesheet" href="https://unpkg.com/katex@0.16.9/dist/katex.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .nav button:hover {
+            background: #5568d3;
+        }
+
+        .nav button.active {
+            background: #764ba2;
+        }
+
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .article-list {
+            list-style: none;
+        }
+
+        .article-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid #667eea;
+        }
+
+        .article-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .article-item h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .article-item p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .project-info {
+            line-height: 1.8;
+        }
+
+        .project-info h2 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .project-info ul {
+            margin-left: 20px;
+        }
+
+        .project-info a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .project-info a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-content {
+            line-height: 1.8;
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            color: #333;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        .markdown-content h1 {
+            font-size: 2em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.5em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .markdown-content h3 {
+            font-size: 1.25em;
+        }
+
+        .markdown-content code {
+            background: #f6f8fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .markdown-content pre {
+            background: #f6f8fa;
+            padding: 0;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid #e1e4e8;
+        }
+
+        .markdown-content pre code {
+            padding: 16px;
+            background: none;
+            display: block;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
+        /* Highlight.js 代码高亮覆盖样式 */
+        .markdown-content pre code.hljs {
+            padding: 16px;
+        }
+
+        /* KaTeX 公式样式 */
+        .markdown-content .katex {
+            font-size: 1.1em;
+        }
+
+        .markdown-content .katex-display {
+            margin: 20px 0;
+        }
+
+        .markdown-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin: 16px 0;
+        }
+
+        .markdown-content ul,
+        .markdown-content ol {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 16px;
+            margin: 16px 0;
+            color: #666;
+        }
+
+        .markdown-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        .markdown-content table th,
+        .markdown-content table td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .markdown-content table th {
+            background: #f6f8fa;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EGE 图形库</h1>
+            <p>Easy Graphics Engine - 简单易用的 C++ 图形库</p>
+        </header>
+
+        <div class="nav">
+            <button id="btnHome" class="active" onclick="showHome()">项目首页</button>
+            <button id="btnArticles" onclick="showArticles()">文章列表</button>
+        </div>
+
+        <div class="content" id="content">
+            <div class="loading">加载中...</div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 EGE 图形库 | <a href="https://xege.org" target="_blank">官方网站</a></p>
+        </footer>
+    </div>
+
+    <!-- Markdown 解析 -->
+    <script src="https://unpkg.com/marked@11.1.1/marked.min.js"></script>
+    <!-- 代码高亮 -->
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+    <!-- KaTeX 数学公式渲染 -->
+    <script src="https://unpkg.com/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://unpkg.com/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+        // 文章列表配置
+        const articles = [
+            {
+                id: 'camera_base',
+                title: 'EGE 相机基础示例：camera_base 完全解析',
+                description: '详细介绍 EGE 相机模块的基础使用，包括设备管理、实时预览、分辨率切换等核心功能',
+                file: 'articles/camera_base.md',
+                category: 'camera'
+            },
+            {
+                id: 'camera_wave',
+                title: 'EGE 相机进阶特效：camera_wave 水波变形详解',
+                description: '基于物理模拟的水波特效实现，涵盖网格系统、纹理映射、三角形光栅化等高级技术',
+                file: 'articles/camera_wave.md',
+                category: 'camera'
+            },
+            {
+                id: 'game_gomoku',
+                title: 'EGE 五子棋游戏实现解析',
+                description: '详细介绍五子棋游戏的实现，包括双人对战、人机对战 AI 算法、音效系统等',
+                file: 'articles/game_gomoku.md',
+                category: 'game'
+            },
+            {
+                id: 'graph_sort_visualization',
+                title: 'EGE 排序算法可视化实现解析',
+                description: '11 种经典排序算法的完整演示，包括冒泡、快排、归并、堆排序等，性能对比一目了然',
+                file: 'articles/graph_sort_visualization.md',
+                category: 'algorithm'
+            },
+            {
+                id: 'graph_function_visualization',
+                title: 'EGE 2D 函数图像绘制实现解析',
+                description: '使用蒙特卡洛方法绘制隐函数曲线 f(x,y)=0，包含 8 种经典图案',
+                file: 'articles/graph_function_visualization.md',
+                category: 'graphics'
+            },
+            {
+                id: 'graph_astar_pathfinding',
+                title: 'EGE A* 寻路算法可视化实现解析',
+                description: 'A* 算法的交互式演示，支持迷宫生成、对角移动、启发式函数对比',
+                file: 'articles/graph_astar_pathfinding.md',
+                category: 'algorithm'
+            },
+            {
+                id: 'graph_game_of_life',
+                title: 'EGE 康威生命游戏实现解析',
+                description: '元胞自动机经典实现，包含 9 种经典图案（滑翔机、脉冲星、高斯帕机枪等）',
+                file: 'articles/graph_game_of_life.md',
+                category: 'simulation'
+            },
+            {
+                id: 'graph_kmeans',
+                title: 'EGE K-Means 聚类算法可视化实现解析',
+                description: 'K-Means++ 聚类算法的完整演示，实时显示迭代收敛过程和簇分配',
+                file: 'articles/graph_kmeans.md',
+                category: 'algorithm'
+            }
+        ];
+
+        // 当前状态
+        let currentView = 'home';
+        let currentArticle = null;
+
+        // 处理 URL hash 变化
+        function handleHashChange() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#/article/')) {
+                const articleId = hash.substring(10);
+                loadArticle(articleId);
+            } else if (hash === '#/articles') {
+                showArticles();
+            } else {
+                showHome();
+            }
+        }
+
+        // 设置 URL hash
+        function setHash(hash) {
+            window.location.hash = hash;
+        }
+
+        // 显示项目首页
+        function showHome() {
+            currentView = 'home';
+            currentArticle = null;
+            updateNavButtons();
+            setHash('');
+            
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="project-info">
+                    <h2>关于 EGE</h2>
+                    <p>EGE (Easy Graphics Engine) 是一个简单易用的 C++ 图形库，专为初学者设计，让图形编程变得轻松有趣。</p>
+                    
+                    <h2>主要特性</h2>
+                    <ul>
+                        <li>简单易学的 API 设计</li>
+                        <li>支持基础图形绘制、图像处理、鼠标键盘交互</li>
+                        <li>内置音乐播放功能</li>
+                        <li>跨平台支持（Windows、macOS、Linux）</li>
+                        <li>丰富的示例代码和教程</li>
+                    </ul>
+                    
+                    <h2>快速开始</h2>
+                    <ul>
+                        <li><a href="https://xege.org/beginner-lesson-1.html" target="_blank">安装教程</a></li>
+                        <li><a href="https://xege.org/install_and_config" target="_blank">IDE 配置</a></li>
+                        <li><a href="https://github.com/wysaid/xege" target="_blank">源代码</a></li>
+                    </ul>
+                    
+                    <h2>最新版本</h2>
+                    <p><strong>EGE 25.11</strong> - 新增相机捕获功能、鼠标双击检测、更多图像格式支持等</p>
+                    
+                    <h2>示例项目</h2>
+                    <p>本文档中心收录了基于 EGE 开发的各类示例项目的详细解析，帮助你深入理解 EGE 的使用方法和游戏开发技巧。</p>
+                    
+                    <p style="margin-top: 30px;">
+                        <button onclick="showArticles()" style="padding: 12px 30px; font-size: 1.1em; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            浏览文章 →
+                        </button>
+                    </p>
+                </div>
+            `;
+        }
+
+        // 显示文章列表
+        function showArticles() {
+            currentView = 'articles';
+            currentArticle = null;
+            updateNavButtons();
+            setHash('/articles');
+            
+            const content = document.getElementById('content');
+            
+            // 按分类组织文章
+            const categories = {
+                'camera': '📷 相机模块',
+                'game': '🎮 游戏开发',
+                'algorithm': '🧮 算法可视化',
+                'graphics': '🎨 图形绘制',
+                'simulation': '🔬 物理模拟'
+            };
+            
+            let html = '<h2>文章列表</h2>';
+            
+            // 遍历每个分类
+            Object.keys(categories).forEach(category => {
+                const categoryArticles = articles.filter(a => a.category === category);
+                if (categoryArticles.length > 0) {
+                    html += `<h3 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">${categories[category]}</h3>`;
+                    html += '<ul class="article-list">';
+                    categoryArticles.forEach(article => {
+                        html += `
+                            <li class="article-item" onclick="loadArticle('${article.id}')">
+                                <h3>${article.title}</h3>
+                                <p>${article.description}</p>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                }
+            });
+            
+            content.innerHTML = html;
+        }
+
+        // 加载文章
+        async function loadArticle(articleId) {
+            const article = articles.find(a => a.id === articleId);
+            if (!article) {
+                showArticles();
+                return;
+            }
+            
+            currentView = 'articles';
+            currentArticle = articleId;
+            updateNavButtons();
+            setHash(`/article/${articleId}`);
+            
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading">加载中...</div>';
+            
+            try {
+                const response = await fetch(article.file);
+                if (!response.ok) {
+                    throw new Error(`文章加载失败 (HTTP ${response.status} ${response.statusText})`);
+                }
+                
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+                
+                content.innerHTML = `
+                    <button onclick="showArticles()" style="margin-bottom: 20px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ← 返回文章列表
+                    </button>
+                    <div class="markdown-content" id="articleContent">
+                        ${html}
+                    </div>
+                `;
+                
+                // 等待 DOM 更新后再应用高亮和公式渲染
+                setTimeout(() => {
+                    // 应用代码高亮
+                    if (typeof hljs !== 'undefined') {
+                        document.querySelectorAll('#articleContent pre code').forEach((block) => {
+                            // 移除可能存在的高亮类
+                            block.className = block.className.replace(/hljs[^\s]*/g, '').trim();
+                            
+                            // 应用高亮
+                            try {
+                                hljs.highlightElement(block);
+                            } catch (e) {
+                                console.warn('代码高亮失败:', e);
+                            }
+                        });
+                    } else {
+                        console.warn('Highlight.js 未加载');
+                    }
+                    
+                    // 渲染 LaTeX 数学公式
+                    if (typeof renderMathInElement !== 'undefined') {
+                        try {
+                            renderMathInElement(document.getElementById('articleContent'), {
+                                delimiters: [
+                                    {left: '$$', right: '$$', display: true},
+                                    {left: '$', right: '$', display: false},
+                                    {left: '\\(', right: '\\)', display: false},
+                                    {left: '\\[', right: '\\]', display: true}
+                                ],
+                                throwOnError: false
+                            });
+                        } catch (e) {
+                            console.warn('KaTeX 渲染失败:', e);
+                        }
+                    }
+                    
+                    // 滚动到顶部
+                    window.scrollTo(0, 0);
+                }, 100);
+                
+            } catch (error) {
+                content.innerHTML = `
+                    <div style="color: #dc3545; padding: 20px; text-align: center;">
+                        <h3>加载失败</h3>
+                        <p>${error.message}</p>
+                        <button onclick="showArticles()" style="margin-top: 10px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            返回文章列表
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // 更新导航按钮状态
+        function updateNavButtons() {
+            document.getElementById('btnHome').classList.toggle('active', currentView === 'home');
+            document.getElementById('btnArticles').classList.toggle('active', currentView === 'articles');
+        }
+
+        // 初始化
+        window.onload = function() {
+            // 监听 hash 变化
+            window.addEventListener('hashchange', handleHashChange);
+            
+            // 初始化时根据 hash 显示对应页面
+            handleHashChange();
+            
+            // 如果没有 hash，显示首页
+            if (!window.location.hash) {
+                showHome();
+            }
+        };
+    </script>
+</body>
+</html>

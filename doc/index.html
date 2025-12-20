@@ -467,7 +467,7 @@
             try {
                 const response = await fetch(article.file);
                 if (!response.ok) {
-                    throw new Error('文章加载失败');
+                    throw new Error(`文章加载失败 (HTTP ${response.status} ${response.statusText})`);
                 }
                 
                 const markdown = await response.text();

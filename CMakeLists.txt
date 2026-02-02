@@ -26,40 +26,22 @@ message(STATUS "ege include dir: ${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # 设置静态库搜索路径
 if(MSVC)
-    # 设置 MSVC 编译选项, 当版本大于 vs2019 时, 使用 c++17 标准.
-    set(CPP_COMPILE_OPTIONS "/std:c++17")
-
-    if(MSVC_VERSION GREATER_EQUAL 1950)
-        # vs2026 以上, 静态库是兼容的.
-        if(CMAKE_CL_64)
-            set(osLibDir "vs2026/x64")
-        else()
-            set(osLibDir "vs2026/x86")
-        endif()
-    elseif(MSVC_VERSION GREATER_EQUAL 1930)
-        # vs2022 以上, 静态库是兼容的.
-        if(CMAKE_CL_64)
-            set(osLibDir "vs2022/x64")
-        else()
-            set(osLibDir "vs2022/x86")
-        endif()
-    elseif(MSVC_VERSION GREATER_EQUAL 1920)
-        # vs2019 以上, 静态库是兼容的.
-        if(CMAKE_CL_64)
-            set(osLibDir "vs2019/x64")
-        else()
-            set(osLibDir "vs2019/x86")
-        endif()
-    elseif(MSVC_VERSION GREATER_EQUAL 1910)
-        # vs2017
-        if(CMAKE_CL_64)
-            set(osLibDir "vs2017/x64")
-        else()
-            set(osLibDir "vs2017/x86")
-        endif()
-
-        # 设置 MSVC 编译选项, 当版本为 vs2017 时, 使用 c++14 标准.
+    # 设置 MSVC 编译选项, 默认使用 c++17 标准.
+    # /std:c++17 需要 VS2017 15.3 (MSVC_VERSION 1911) 及以上
+    if(MSVC_VERSION GREATER_EQUAL 1911)
+        set(CPP_COMPILE_OPTIONS "/std:c++17")
+    else()
         set(CPP_COMPILE_OPTIONS "/std:c++14")
+    endif()
+
+    if(MSVC_VERSION GREATER_EQUAL 1910)
+        # vs2017 及以上版本统一使用 msvc 静态库
+        # msvc 静态库与 vs2017, vs2019, vs2022, vs2026 兼容
+        if(CMAKE_CL_64)
+            set(osLibDir "msvc/x64")
+        else()
+            set(osLibDir "msvc/x86")
+        endif()
     elseif(MSVC_VERSION GREATER_EQUAL 1900)
         # vs2015
         if(CMAKE_CL_64)
@@ -67,9 +49,6 @@ if(MSVC)
         else()
             set(osLibDir "vs2015")
         endif()
-
-        # 设置 MSVC 编译选项, 当版本为 vs2015 时, 使用 c++14 标准.
-        set(CPP_COMPILE_OPTIONS "/std:c++14")
     elseif(MSVC_VERSION GREATER_EQUAL 1600)
         if(MSVC_VERSION GREATER_EQUAL 1700)
             message(WARNING "You are using vs2012/vs2013, which is not tested, please use vs2010, vs2015 or later version of MSVC compiler.")

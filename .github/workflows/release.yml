@@ -1,0 +1,164 @@
+name: Release Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version override (e.g. 25.11.0). Leave empty to use version.txt'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    concurrency:
+      group: release-installer
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Clone ege-installer
+        run: |
+          git clone --depth 1 https://github.com/x-ege/ege-installer.git ege-installer
+
+      - name: Install NSIS
+        run: choco install nsis --version=3.11 -y
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          # Priority: workflow input > tag name > version.txt
+          $version = ""
+
+          # 1. Check workflow_dispatch input
+          $inputVersion = "${{ github.event.inputs.version }}"
+          if ($inputVersion) {
+            $version = $inputVersion
+            Write-Host "Using workflow input version: $version"
+          }
+
+          # 2. Check tag name
+          if (-not $version) {
+            $ref = "${{ github.ref }}"
+            if ($ref -match "^refs/tags/v(.+)$") {
+              $version = $matches[1]
+              Write-Host "Using tag version: $version"
+            }
+          }
+
+          # 3. Fall back to version.txt
+          if (-not $version) {
+            $versionFile = "${{ github.workspace }}\version.txt"
+            if (Test-Path $versionFile) {
+              $version = (Get-Content $versionFile -Raw).Trim()
+              Write-Host "Using version.txt: $version"
+            } else {
+              # For tag-triggered releases, fail if no version found
+              if ("${{ github.ref }}" -like "refs/tags/*") {
+                Write-Host "Error: Cannot determine version for tag release" -ForegroundColor Red
+                Write-Host "version.txt not found and no valid tag name"
+                exit 1
+              }
+              $version = "1.0.0"
+              Write-Host "Fallback version: $version (manual workflow only)"
+            }
+          }
+
+          # Generate NSIS-compatible product version (X.X.X.X)
+          $productVersion = $version -replace "[^0-9.]", "" -replace "\.+", "."
+          try {
+            $productVersion = ($productVersion.Split('.') | ForEach-Object { [int]$_ }) -join '.'
+          } catch { }
+          if ($productVersion -notmatch "^\d+\.\d+\.\d+") {
+            $productVersion = "1.0.0"
+          }
+          $parts = $productVersion.Split('.')
+          if ($parts.Length -gt 4) {
+            # Truncate to 4 segments for NSIS VIProductVersion
+            $productVersion = ($parts[0..3]) -join '.'
+          } elseif ($parts.Length -eq 3) {
+            $productVersion = "$productVersion.0"
+          } elseif ($parts.Length -lt 3) {
+            $productVersion = "1.0.0.0"
+          }
+
+          # Validate version format (basic sanity check)
+          if ($version -notmatch '^[0-9]+\.[0-9]+(\.[0-9]+)?(-[a-zA-Z0-9._-]+)?$') {
+            Write-Host "Error: Invalid version format: $version" -ForegroundColor Red
+            Write-Host "Expected format: X.Y or X.Y.Z with optional -suffix"
+            exit 1
+          }
+          
+          Write-Host "Display Version: $version"
+          Write-Host "Product Version: $productVersion"
+          "VERSION=$version" >> $env:GITHUB_OUTPUT
+          "PRODUCT_VERSION=$productVersion" >> $env:GITHUB_OUTPUT
+
+      - name: Build installer package
+        shell: pwsh
+        run: |
+          .\ege-installer\scripts\build.ps1 `
+            -XegeLibsPath "${{ github.workspace }}" `
+            -Version "${{ steps.version.outputs.VERSION }}" `
+            -ProductVersion "${{ steps.version.outputs.PRODUCT_VERSION }}"
+
+      - name: Collect build output
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $srcDir = "ege-installer\dist"
+          $destDir = "dist"
+
+          New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+
+          $exeFile = Join-Path $srcDir "ege-installer-$version.exe"
+          if (Test-Path $exeFile) {
+            Copy-Item $exeFile $destDir -Force
+            $sizeMB = [math]::Round((Get-Item $exeFile).Length / 1MB, 2)
+            Write-Host "Output: ege-installer-$version.exe ($sizeMB MB)" -ForegroundColor Cyan
+          } else {
+            Write-Host "Error: $exeFile not found" -ForegroundColor Red
+            Write-Host "Contents of ${srcDir}:"
+            Get-ChildItem -Path $srcDir -ErrorAction SilentlyContinue | Format-Table Name, Length
+            exit 1
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ege-installer-${{ steps.version.outputs.VERSION }}
+          path: dist/*.exe
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: EGE ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## EGE 安装包 v${{ steps.version.outputs.VERSION }}
+
+            下载 `ege-installer-${{ steps.version.outputs.VERSION }}.exe` 运行即可安装。
+
+            支持的 IDE：
+            - Visual Studio 2017 / 2019 / 2022 / 2026
+            - MinGW-w64 (MSYS2, Standalone)
+            - Red Panda C++
+            - Dev-C++
+            - Code::Blocks
+            - CLion
+
+            安装教程：https://xege.org/beginner-lesson-1.html
+          files: dist/*.exe
+          draft: false
+          prerelease: false

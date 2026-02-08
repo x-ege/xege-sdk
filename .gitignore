@@ -1,3 +1,5 @@
 build/
 /ege-*
 temp/
+dist/
+ege-installer/

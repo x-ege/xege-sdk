@@ -63,8 +63,14 @@ jobs:
               $version = (Get-Content $versionFile -Raw).Trim()
               Write-Host "Using version.txt: $version"
             } else {
+              # For tag-triggered releases, fail if no version found
+              if ("${{ github.ref }}" -like "refs/tags/*") {
+                Write-Host "Error: Cannot determine version for tag release" -ForegroundColor Red
+                Write-Host "version.txt not found and no valid tag name"
+                exit 1
+              }
               $version = "1.0.0"
-              Write-Host "Fallback version: $version"
+              Write-Host "Fallback version: $version (manual workflow only)"
             }
           }
 
@@ -77,7 +83,10 @@ jobs:
             $productVersion = "1.0.0"
           }
           $parts = $productVersion.Split('.')
-          if ($parts.Length -eq 3) {
+          if ($parts.Length -gt 4) {
+            # Truncate to 4 segments for NSIS VIProductVersion
+            $productVersion = ($parts[0..3]) -join '.'
+          } elseif ($parts.Length -eq 3) {
             $productVersion = "$productVersion.0"
           } elseif ($parts.Length -lt 3) {
             $productVersion = "1.0.0.0"

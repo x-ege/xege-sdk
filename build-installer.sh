@@ -13,8 +13,8 @@
 #   - NSIS 3.11+ (可通过 winget install NSIS.NSIS 或 scoop install nsis 安装)
 #   - Git
 
-cd "$(dirname "$0")"
 set -e
+cd "$(dirname "$0")"
 
 THIS_DIR=$(realpath .)
 INSTALLER_REPO="https://github.com/x-ege/ege-installer.git"
@@ -28,6 +28,10 @@ CLEAN=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
     -v | --version)
+        if [[ -z "${2:-}" ]]; then
+            echo "Error: -v/--version requires a version argument"
+            exit 1
+        fi
         CUSTOM_VERSION="$2"
         shift 2
         ;;
@@ -130,12 +134,12 @@ fi
 
 BUILD_SCRIPT_WIN=$(to_win_path "$BUILD_SCRIPT")
 
-echo "Running: powershell $BUILD_SCRIPT_WIN"
+echo "Running: powershell -File $BUILD_SCRIPT_WIN ..."
 echo ""
 
 # 注意：build.ps1 的 NSIS 输出路径被硬编码为 ege-installer/dist/
 # 不传 OutputDir，让 build.ps1 使用默认值，之后再复制到本地 dist/
-powershell -NoProfile -ExecutionPolicy Bypass -File "$BUILD_SCRIPT" \
+powershell -NoProfile -ExecutionPolicy Bypass -File "$BUILD_SCRIPT_WIN" \
     -XegeLibsPath "$XEGE_LIBS_WIN" \
     -Version "$EGE_VERSION"
 

@@ -1,17 +1,147 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-	<title>官网故障, 修复中...</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>EGE - Easy Graphics Engine</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+			background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+			color: #c9d1d9;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 2rem;
+		}
+		.container { max-width: 720px; width: 100%; text-align: center; }
+		h1 {
+			font-size: 2.5rem;
+			color: #58a6ff;
+			margin-bottom: 0.5rem;
+		}
+		.subtitle {
+			font-size: 1.1rem;
+			color: #8b949e;
+			margin-bottom: 2.5rem;
+		}
+		.card {
+			background: #21262d;
+			border: 1px solid #30363d;
+			border-radius: 8px;
+			padding: 1.5rem 2rem;
+			margin-bottom: 1.2rem;
+			text-align: left;
+		}
+		.card h2 {
+			font-size: 1.2rem;
+			color: #f0f6fc;
+			margin-bottom: 0.8rem;
+		}
+		.card ul {
+			list-style: none;
+			padding: 0;
+		}
+		.card ul li {
+			padding: 0.4rem 0;
+			border-bottom: 1px solid #30363d;
+		}
+		.card ul li:last-child { border-bottom: none; }
+		a {
+			color: #58a6ff;
+			text-decoration: none;
+		}
+		a:hover { text-decoration: underline; }
+		.badge {
+			display: inline-block;
+			background: #388bfd26;
+			color: #58a6ff;
+			padding: 0.15rem 0.5rem;
+			border-radius: 12px;
+			font-size: 0.85rem;
+			margin-left: 0.5rem;
+		}
+		.cta {
+			display: inline-block;
+			background: #238636;
+			color: #fff;
+			padding: 0.7rem 1.8rem;
+			border-radius: 6px;
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 0.5rem;
+			transition: background 0.2s;
+		}
+		.cta:hover { background: #2ea043; text-decoration: none; }
+		.cta.secondary { background: #30363d; }
+		.cta.secondary:hover { background: #3b424a; }
+		.buttons { margin: 1.5rem 0; }
+		.footer {
+			margin-top: 2rem;
+			color: #484f58;
+			font-size: 0.85rem;
+		}
+		code {
+			background: #161b22;
+			padding: 0.15rem 0.4rem;
+			border-radius: 4px;
+			font-size: 0.9rem;
+			color: #e6edf3;
+		}
+	</style>
 </head>
 <body>
-<h1>阿里云新加坡机房着火, 还未修复... 不知道啥时候修复, 先这样吧...(2024.9.11)</h1>
-<p>
-	EGE 安装包下载(Github): <a href="https://github.com/wysaid/xege.org">https://github.com/wysaid/xege.org</a>
-</p>
-<p>
-	EGE 安装包下载(百度网盘): <a href="https://pan.baidu.com/s/1qWxAgeK">https://pan.baidu.com/s/1qWxAgeK</a>
-</p>
-<p> EGE 源代码: <a href="https://github.com/wysaid/xege">https://github.com/wysaid/xege</a>
-</p>
+	<div class="container">
+		<h1>EGE</h1>
+		<p class="subtitle">Easy Graphics Engine — 面向 C/C++ 初学者的简易绘图库</p>
+
+		<div class="buttons">
+			<a class="cta" href="https://github.com/x-ege/xege-sdk/releases">下载安装包</a>
+			<a class="cta secondary" href="https://github.com/x-ege/xege">查看源代码</a>
+		</div>
+
+		<div class="card">
+			<h2>快速开始</h2>
+			<ul>
+				<li><a href="https://github.com/x-ege/xege-sdk/releases">SDK 下载</a> — 预编译库，支持 VS2017-2026、MinGW 等</li>
+				<li><a href="https://github.com/x-ege/ege-installer">EGE Installer</a> — 一键安装到各种 IDE<span class="badge">推荐</span></li>
+				<li><a href="https://pan.baidu.com/s/1qWxAgeK">百度网盘下载</a> — 国内加速</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<h2>IDE 插件</h2>
+			<ul>
+				<li><a href="https://plugins.jetbrains.com/plugin/28785-xege-creator">XEGE Creator</a> — CLion 插件，一键创建 EGE 项目</li>
+				<li><a href="https://marketplace.visualstudio.com/items?itemName=wysaid.ege">EGE for VS Code</a> — VS Code 插件，支持跨平台</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<h2>文档和教程</h2>
+			<ul>
+				<li><a href="https://github.com/x-ege/ege-installer/blob/master/INSTALLATION.md">安装使用教程</a> — 各 IDE 配置指南</li>
+				<li><a href="https://xege.org/manual/api/">API 文档</a> — 函数参考手册</li>
+				<li><a href="https://xege.org/manual/tutorial/">入门教程</a> — 新手快速上手</li>
+				<li><a href="https://github.com/x-ege/xege/tree/master/demo">示例程序</a> — 游戏、图形、算法可视化等</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<h2>项目仓库</h2>
+			<ul>
+				<li><a href="https://github.com/x-ege/xege">x-ege/xege</a> — EGE 源代码</li>
+				<li><a href="https://github.com/x-ege/xege-sdk">x-ege/xege-sdk</a> — 预编译 SDK</li>
+				<li><a href="https://github.com/x-ege/ege-installer">x-ege/ege-installer</a> — 安装器</li>
+				<li><a href="https://github.com/x-ege/ege-vscode-plugin">x-ege/ege-vscode-plugin</a> — VS Code 插件</li>
+				<li><a href="https://github.com/x-ege/ege-clion-plugin">x-ege/ege-clion-plugin</a> — CLion 插件</li>
+			</ul>
+		</div>
+
+		<p class="footer">EGE &copy; 2025 &mdash; MIT License</p>
+	</div>
 </body>
 </html>
